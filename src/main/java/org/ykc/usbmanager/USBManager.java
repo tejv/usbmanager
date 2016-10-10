@@ -112,7 +112,7 @@ public class USBManager{
 		}
 	}
 
-	/* List all the usb devices*/
+	/* List all the usb devices */
 	public ArrayList<UsbDevice> getDeviceList()
 	{
 		return getDeviceList((short)0,(short)0);

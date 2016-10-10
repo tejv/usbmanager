@@ -1,5 +1,13 @@
-apply plugin: 'java'
+import org.apache.tools.ant.taskdefs.condition.Os
 
+apply plugin: 'java'
+apply plugin: 'maven'
+
+def maj_ver
+def min_ver
+def build_no
+def versionPropsFile
+def Properties versionProps
 
 repositories {
     jcenter()
@@ -13,6 +21,84 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+build{
+
+ 	versionPropsFile = file('version.properties')
+
+    if (versionPropsFile.canRead()) {
+        versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+        maj_ver = versionProps['MAJOR_VERSION'].toInteger()
+		min_ver = versionProps['MINOR_VERSION'].toInteger()
+		build_no = versionProps['BUILD_NO'].toInteger()
+
+        def runTasks = gradle.startParameter.taskNames
+        if ('major_release' in runTasks) {
+            min_ver = 0
+            build_no = 0
+            maj_ver = maj_ver + 1
+        }
+        else if('minor_release' in runTasks)
+        {
+            min_ver = min_ver + 1
+            build_no = 0
+        }
+        else
+        {
+        	build_no = build_no + 1
+        }
+
+        versionProps['MAJOR_VERSION']= maj_ver.toString()
+        versionProps['MINOR_VERSION']= min_ver.toString()
+        versionProps['BUILD_NO']= build_no.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+		jar.version = "${maj_ver}.${min_ver}.${build_no}"
+    }
+    else {
+        throw new GradleException("Could not read version.properties!")
+	}
+
+}
+
 jar{
+	group 'build'
 	from configurations.compile.collect {zipTree it}
 }
+
+
+/* Use only on release */
+task minor_release(type: Copy) {
+    description "Generates output jar in release folder with auto increment of minor version"
+    group 'build'
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS))
+    {
+	    from jar
+	    into "release/win/${maj_ver}.0.0"
+    }
+    else
+    {
+ 	    from jar
+	    into "release/linux/${maj_ver}.0.0"
+    }
+}
+
+task major_release(type: Copy) {
+    description "Generates output jar in release folder with auto increment of major version"
+    group 'build'
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS))
+    {
+	    from jar
+	    into "release/win/${maj_ver}.${min_ver}.${build_no}"
+    }
+    else
+    {
+ 	    from jar
+	    into "release/linux/${maj_ver}.${min_ver}.${build_no}"
+    }
+}
+
+
