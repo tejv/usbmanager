@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+
+dependencies {
+    compile group: 'org.usb4java', name: 'usb4java-javax', version: '1.+'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    testCompile 'junit:junit:4.12'
+}
+
+jar{
+	from configurations.compile.collect {zipTree it}
+}
