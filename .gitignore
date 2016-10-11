@@ -35,6 +35,5 @@ proguard/
 .gradle/
 build/
 bin/
-release/
 gradle.properties
 
