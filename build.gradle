@@ -39,10 +39,19 @@ build{
             build_no = 0
             maj_ver = maj_ver + 1
         }
+        else if('major_release_skip_ver_inc' in runTasks)
+        {
+        	min_ver = 0
+            build_no = 0
+        }
         else if('minor_release' in runTasks)
         {
             min_ver = min_ver + 1
             build_no = 0
+        }
+        else if('minor_release_skip_ver_inc' in runTasks)
+        {
+        	build_no = 0
         }
         else
         {
@@ -67,12 +76,7 @@ jar{
 	from configurations.compile.collect {zipTree it}
 }
 
-
-/* Use only on release */
-task minor_release(type: Copy) {
-    description "Generates output jar in release folder with auto increment of minor version"
-    group 'build'
-
+task min_rel(type: Copy) {
     if (Os.isFamily(Os.FAMILY_WINDOWS))
     {
 	    from jar
@@ -85,10 +89,7 @@ task minor_release(type: Copy) {
     }
 }
 
-task major_release(type: Copy) {
-    description "Generates output jar in release folder with auto increment of major version"
-    group 'build'
-
+task maj_rel(type: Copy) {
     if (Os.isFamily(Os.FAMILY_WINDOWS))
     {
 	    from jar
@@ -99,6 +100,32 @@ task major_release(type: Copy) {
  	    from jar
 	    into "release/linux/${maj_ver}.${min_ver}.${build_no}"
     }
+}
+
+
+/* Use only on release */
+task minor_release(type: Copy) {
+    description "Generates output jar in release folder with auto increment of minor version"
+    group 'build'
+    dependsOn = ['min_rel']
+}
+
+task minor_release_skip_ver_inc(type: Copy) {
+    description "Generates output jar in release folder with auto increment of minor version"
+    group 'build'
+    dependsOn = ['min_rel']
+}
+
+task major_release(type: Copy) {
+    description "Generates output jar in release folder with auto increment of major version"
+    group 'build'
+	dependsOn = ['maj_rel']
+}
+
+task major_release_skip_ver_inc(type: Copy) {
+    description "Generates output jar in release folder with auto increment of major version"
+    group 'build'
+	dependsOn = ['maj_rel']
 }
 
 
