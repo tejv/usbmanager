@@ -3,6 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'java'
 apply plugin: 'maven'
 
+
 def maj_ver
 def min_ver
 def build_no
@@ -10,16 +11,14 @@ def versionPropsFile
 def Properties versionProps
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 
 
 dependencies {
     compile group: 'org.usb4java', name: 'usb4java-javax', version: '1.+'
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    testCompile 'junit:junit:4.12'
 }
+
 
 build{
 
@@ -52,6 +51,10 @@ build{
         else if('minor_release_skip_ver_inc' in runTasks)
         {
         	build_no = 0
+        }
+        else if('uploadArchives' in runTasks)
+        {
+        	//do_nothing
         }
         else
         {
@@ -128,4 +131,23 @@ task major_release_skip_ver_inc(type: Copy) {
 	dependsOn = ['maj_rel']
 }
 
+
+// Deploy to local maven-repo. If want to put on github push as a seprate step.
+// Path of local maven-repo needs to be specified in gradle.properties file and changed
+//   as per machine.
+uploadArchives {
+
+    repositories.mavenDeployer {
+
+		repository(url: LOCAL_MAVEN_REPO_PATH)
+        uniqueVersion = false
+
+        pom.project {
+            groupId = 'org.ykc'
+            version = jar.version
+            artifactId = 'usbmanager'
+            packaging = 'jar'
+        }
+    }
+}
 
