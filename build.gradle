@@ -67,6 +67,14 @@ build{
         versionProps.store(versionPropsFile.newWriter(), null)
 
 		jar.version = "${maj_ver}.${min_ver}.${build_no}"
+	    if (Os.isFamily(Os.FAMILY_WINDOWS))
+	    {
+		    jar.baseName = "${project.name}-win"
+	    }
+	    else
+	    {
+	 	    jar.baseName = "${project.name}-linux"
+	    }
     }
     else {
         throw new GradleException("Could not read version.properties!")
@@ -80,53 +88,38 @@ jar{
 }
 
 task min_rel(type: Copy) {
-    if (Os.isFamily(Os.FAMILY_WINDOWS))
-    {
-	    from jar
-	    into "release/win/${maj_ver}.0.0"
-    }
-    else
-    {
- 	    from jar
-	    into "release/linux/${maj_ver}.0.0"
-    }
+    from jar
+    into "release/${maj_ver}.0.0"
 }
 
 task maj_rel(type: Copy) {
-    if (Os.isFamily(Os.FAMILY_WINDOWS))
-    {
-	    from jar
-	    into "release/win/${maj_ver}.${min_ver}.${build_no}"
-    }
-    else
-    {
- 	    from jar
-	    into "release/linux/${maj_ver}.${min_ver}.${build_no}"
-    }
+
+    from jar
+    into "release/${maj_ver}.${min_ver}.${build_no}"
 }
 
 
 /* Use only on release */
-task minor_release(type: Copy) {
+task minor_release() {
     description "Generates output jar in release folder with auto increment of minor version"
     group 'build'
     dependsOn = ['min_rel']
 }
 
-task minor_release_skip_ver_inc(type: Copy) {
-    description "Generates output jar in release folder with auto increment of minor version"
+task minor_release_skip_ver_inc() {
+    description "Generates output jar in release folder with no increment of minor version"
     group 'build'
     dependsOn = ['min_rel']
 }
 
-task major_release(type: Copy) {
+task major_release() {
     description "Generates output jar in release folder with auto increment of major version"
     group 'build'
 	dependsOn = ['maj_rel']
 }
 
-task major_release_skip_ver_inc(type: Copy) {
-    description "Generates output jar in release folder with auto increment of major version"
+task major_release_skip_ver_inc() {
+    description "Generates output jar in release folder with no increment of major version"
     group 'build'
 	dependsOn = ['maj_rel']
 }
