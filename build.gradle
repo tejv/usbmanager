@@ -22,7 +22,7 @@ dependencies {
 
 build{
 
- 	versionPropsFile = file('version.properties')
+ 	versionPropsFile = file('resources/version.properties')
 
     if (versionPropsFile.canRead()) {
         versionProps = new Properties()
@@ -67,14 +67,6 @@ build{
         versionProps.store(versionPropsFile.newWriter(), null)
 
 		jar.version = "${maj_ver}.${min_ver}.${build_no}"
-	    if (Os.isFamily(Os.FAMILY_WINDOWS))
-	    {
-		    jar.baseName = "${project.name}-win"
-	    }
-	    else
-	    {
-	 	    jar.baseName = "${project.name}-linux"
-	    }
     }
     else {
         throw new GradleException("Could not read version.properties!")
@@ -138,7 +130,7 @@ uploadArchives {
         pom.project {
             groupId = 'org.ykc'
             version = jar.version
-            artifactId = 'usbmanager'
+            artifactId = jar.baseName
             packaging = 'jar'
         }
     }
